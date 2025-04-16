@@ -8,13 +8,14 @@ import net.neoforged.fml.config.ModConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Mod(Main.MOD_ID)
-public class Main {
-    public static final String MOD_ID = "pmod";
-    public static final Logger Log = LoggerFactory.getLogger(Main.class);
+import com.pmod.config.ServerConfig;
 
-    public Main(IEventBus modEventBus, ModContainer modContainer) {
-        new LivingEntityDifficultyHandler();
+@Mod(Main.MOD_ID)
+public final class Main {
+    public static final transient String MOD_ID = "pmod";
+    public static final transient Logger Log = LoggerFactory.getLogger(Main.class);
+
+    public Main(final IEventBus modEventBus, final ModContainer modContainer) {
         modContainer.registerConfig(ModConfig.Type.SERVER, ServerConfig.Handler);
         Log.info("{} full mod loaded. Congratulations!", MOD_ID);
     }

@@ -1,25 +1,62 @@
+# pmod - Адаптивная сложность мобов (В разработке)
 
-Installation information
-=======
+## Статус разработки
 
-This template repository can be directly cloned to get you started with a new
-mod. Simply create a new repository cloned from this one, by following the
-instructions provided by [GitHub](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template).
+Этот мод находится в активной разработке. Ожидайте нестабильности и возможных изменений в будущем.
 
-Once you have your clone, simply open the repository in the IDE of your choice. The usual recommendation for an IDE is either IntelliJ IDEA or Eclipse.
+## Обзор
 
-If at any point you are missing libraries in your IDE, or you've run into problems you can
-run `gradlew --refresh-dependencies` to refresh the local cache. `gradlew clean` to reset everything 
-{this does not affect your code} and then start the process again.
+pmod - это Minecraft мод, который позволяет тонко настраивать сложность мобов в игре. Он предоставляет гибкую систему конфигурации, основанную на JSON файлах, для определения различных действий, которые могут быть применены к мобам в зависимости от уровня сложности.
 
-Mapping Names:
-============
-By default, the MDK is configured to use the official mapping names from Mojang for methods and fields 
-in the Minecraft codebase. These names are covered by a specific license. All modders should be aware of this
-license. For the latest license text, refer to the mapping file itself, or the reference copy here:
-https://github.com/NeoForged/NeoForm/blob/main/Mojang.md
+## Планируемые возможности
 
-Additional Resources: 
-==========
-Community Documentation: https://docs.neoforged.net/  
-NeoForged Discord: https://discord.neoforged.net/
+- = **Базовая сложность:** Установка базового множителя сложности для всех мобов.
+- ☑ **Сложность в зависимости от расстояния:** Увеличение сложности мобов в зависимости от расстояния до игрока (как по горизонтали, так и по вертикали).
+- ☐ **Сложность в зависимости от времени:** Увеличение сложности мобов в зависимости от проведённого времени в игре.
+- ☐ **Сложность в зависимости от ценности инвентаря:** Увеличение сложности мобов в зависимости от ценности инвентаря игрока.
+- ☑ **Настраиваемые действия:** Определение различных действий, которые будут применяться к мобам при достижении определенного уровня сложности. Эти действия настраиваются через JSON файлы.
+- ☑ **Различные типы действий:** Поддержка различных типов действий, таких как:
+  - Наложение эффектов (например, увеличение скорости, силы, сопротивления).
+  - Выдача предметов (например, улучшенное оружие, броня).
+  - Изменение атрибутов (например, увеличение максимального здоровья, урона).
+- **Рандомизация действий:** Возможность случайного применения действий из списка.
+
+## Конфигурация
+
+Мод использует JSON файлы для определения действий, связанных с уровнем сложности. Эти файлы должны располагаться в директории `config/pmod/difficulty_actions/` в папке запуска Minecraft.
+
+Каждый JSON файл представляет собой конфигурацию для определенного уровня сложности (хотя текущая реализация может не использовать это напрямую и просто загружать все файлы).
+
+### Структура JSON (Документация)
+
+Корневой объект JSON файла имеет следующую структуру:
+
+```json
+{
+	"difficultyMultiplier": 1.0,
+	"use_random": false,
+	"actions": [
+		// Массив объектов действий
+		{
+			"type": "Effect",
+			"value": "minecraft:slowness",
+			"duration": 100,
+			"amplifier": 1
+		},
+		{
+			"type": "Item",
+			"value": "minecraft:stone_sword",
+			"slot": "mainhand",
+			"count": 1,
+			"enchantments": ["sharpness:1"]
+		},
+		{
+			"type": "Modifier",
+			"attribute": "generic.max_health",
+			"operation": "multiply_base",
+			"value": 1.5
+		}
+		// ... другие действия
+	]
+}
+```
