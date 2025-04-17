@@ -4,6 +4,8 @@ import javax.annotation.Nullable;
 
 import org.jetbrains.annotations.NotNull;
 
+import net.minecraft.world.entity.LivingEntity;
+
 public abstract class BaseDifficultyAction<V extends Object> {
 	public static enum Type {
 		NOT_INIT,
@@ -26,6 +28,10 @@ public abstract class BaseDifficultyAction<V extends Object> {
 
 	public final Type getType() {
 		return type;
+	}
+
+	public boolean apply(final LivingEntity entity, final float difficulty) {
+		throw new UnsupportedOperationException("This method is not implemented");
 	}
 
 	@Override

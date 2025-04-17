@@ -7,6 +7,8 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -28,22 +30,22 @@ public class ServerConfig {
 	private static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
 
 	private static final ModConfigSpec.DoubleValue BASE_DIFFICULTY = BUILDER
-			.defineInRange("base_difficulty", 1.0, 0.0, Float.MAX_VALUE);
+			.defineInRange("base_difficulty", 0.5, 0.0, Float.MAX_VALUE);
 
 	private static final ModConfigSpec.BooleanValue USE_HORIZONTAL_DISTANCE = BUILDER
 			.define("use_horizontal_distance", true);
 
 	private static final ModConfigSpec.DoubleValue HORIZONTAL_MULTIPLIER = BUILDER
-			.defineInRange("horizontal_multiplier", 0.05, 0.0, Float.MAX_VALUE);
+			.defineInRange("horizontal_multiplier", 0.02, 0.0, Float.MAX_VALUE);
 
 	private static final ModConfigSpec.BooleanValue USE_VERTICAL_DISTANCE = BUILDER
 			.define("use_vertical_distance", true);
 
 	private static final ModConfigSpec.DoubleValue VERTICAL_THRESHOLD = BUILDER
-			.defineInRange("vertical_threshold", -50.0, Double.MIN_VALUE, Float.MAX_VALUE);
+			.defineInRange("vertical_threshold", -48.0, Double.MIN_VALUE, Float.MAX_VALUE);
 
 	private static final ModConfigSpec.DoubleValue VERTICAL_MULTIPLIER = BUILDER
-			.defineInRange("vertical_multiplier", 0.013, 0.0, Float.MAX_VALUE);
+			.defineInRange("vertical_multiplier", 0.01, 0.0, Float.MAX_VALUE);
 
 	private static final ModConfigSpec.BooleanValue INVERT_VERTICAL_DIRECTION = BUILDER
 			.define("invert_vertical_direction", false);
@@ -62,10 +64,13 @@ public class ServerConfig {
 	public static boolean invertVerticalDirection;
 	public static float generalMaxHealth;
 
-	private final static List<DifficultyActionConfig> difficultyActionConfigs = new ArrayList<>();
-
 	@SubscribeEvent
 	public final static void onLoad(final ModConfigEvent event) {
+		if (!Handler.isLoaded()) {
+			Main.Log.warn("ServerConfig not loaded!");
+			return;
+		}
+
 		baseDifficulty = BASE_DIFFICULTY.get().floatValue();
 		useHorizontalDistance = USE_HORIZONTAL_DISTANCE.get();
 		horizontalMultiplier = HORIZONTAL_MULTIPLIER.get().floatValue();
@@ -74,24 +79,15 @@ public class ServerConfig {
 		verticalMultiplier = VERTICAL_MULTIPLIER.get().floatValue();
 		invertVerticalDirection = INVERT_VERTICAL_DIRECTION.get();
 		generalMaxHealth = GENERAL_MAX_HEALTH.get().floatValue();
+
 		Main.Log.info("ServerConfig loaded.");
-
-		loadDifficultyActionConfigs();
-	}
-
-	/**
-	 * @see #loadDifficultyActionConfigs()
-	 * @return The list of difficulty action configs
-	 */
-	public final static List<DifficultyActionConfig> getDifficultyActionConfigs() {
-		return difficultyActionConfigs;
 	}
 
 	/**
 	 * Loads all difficulty action configs from the difficulty_actions directory
 	 * Use when the mod is loaded
 	 */
-	public final static void loadDifficultyActionConfigs() {
+	public final static @Nullable List<DifficultyActionConfig> getDifficultyActionConfigs() {
 		Main.Log.info("Loading difficulty action configs...");
 		// Create GSON with custom type adapter
 		final Gson gsonWithAdapter = new GsonBuilder()
@@ -102,7 +98,6 @@ public class ServerConfig {
 		// Gson без адаптера для DifficultyActionConfig
 		final Gson defaultGson = new GsonBuilder().setPrettyPrinting().create();
 
-		difficultyActionConfigs.clear();
 		Path configDir = FMLPaths.CONFIGDIR.get().resolve(Main.MOD_ID);
 		File difficultyActionsDir = configDir.resolve("difficulty_actions").toFile();
 
@@ -112,9 +107,11 @@ public class ServerConfig {
 				Main.Log.info("Created difficulty_actions config directory.");
 			} else {
 				Main.Log.error("Failed to create difficulty_actions config directory.");
-				return;
+				return null;
 			}
 		}
+
+		final List<DifficultyActionConfig> difficultyActionConfigs = new ArrayList<>();
 
 		Main.Log.info("Loading difficulty action configs from: {}", difficultyActionsDir.getAbsolutePath());
 		File[] files = difficultyActionsDir.listFiles((dir, name) -> name.endsWith(".json"));
@@ -143,5 +140,7 @@ public class ServerConfig {
 				}
 			}
 		}
+
+		return difficultyActionConfigs;
 	}
 }
